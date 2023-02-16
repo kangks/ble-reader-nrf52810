@@ -14,7 +14,7 @@ use futures::StreamExt;
 extern crate log;
 
 /// Only devices whose name contains this string will be tried.
-const PERIPHERAL_NAME_MATCH_FILTER: &str = "OxySmart";
+const PERIPHERAL_NAME_MATCH_FILTER: &str = "PC-60F";
 /// UUID of the characteristic for which we should subscribe to notifications to receive new bytes
 const NUS_CHARACTERISTIC_RX_UUID: Uuid = Uuid::from_u128(0x6e400003_b5a3_f393_e0a9_e50e24dcca9e);
 
@@ -60,7 +60,7 @@ async fn find_device(manager: &Manager) -> Result<(Adapter, Peripheral, btleplug
                 }
             }
             let is_connected = peripheral.is_connected().await?;
-            info!("Now connected ({:?}) to peripheral {:?}.", is_connected, &local_name);
+            println!("Now connected ({:?}) to peripheral {:?}.", is_connected, &local_name);
             if !is_connected {
                 error!("Couldn't connect to peripheral, skipping {:?}.", &local_name);
                 continue;
@@ -87,8 +87,6 @@ async fn find_device(manager: &Manager) -> Result<(Adapter, Peripheral, btleplug
 async fn main() -> Result<(), Box<dyn Error>> {
     pretty_env_logger::init();
     let manager = Manager::new().await?;
-    println!("time,spo2,heartrate");
-
     loop {
         match find_device(&manager).await {
             Ok((adaptor, peripheral, characteristic_rx)) => {
@@ -111,7 +109,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                             debug!("Suppressing null data");
                                             continue;
                                         }
-                                        println!("{},{},{}", time_iso8601, spo2, hr);
+                                        println!("time={},SpO2={},heart rate={}", time_iso8601, spo2, hr);
                                     }
                                 },
                                 _ => break
